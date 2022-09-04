@@ -277,7 +277,7 @@ void shopping ::rem()
     data>>pcode>>name>>price>>discount;
     while(!data.eof())
     {
-        if(pcode==pkey)
+        if(pkey==pcode)
         {
             cout<<"\n\n\t Product deleted successfully";
             token++;
