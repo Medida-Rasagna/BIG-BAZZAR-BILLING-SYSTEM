@@ -126,7 +126,7 @@ void shopping::buyer()
     int choice;
     cout<<"\t\t\t 1)BUY PRODUCT \n";
     cout<<"                     \n";
-    cout<<"\t\t\t 2)BUYER       \n";
+    cout<<"\t\t\t 2)BACK TO MAIN MENU       \n";
     cout<<"                     \n";
     cout<<"\t\t\t 3)GO BACK     \n";
     cout<<"                     \n";
@@ -318,78 +318,70 @@ void shopping::lis()
 
 void shopping::receipt()
 {
-
-    fstream data;
+    fstream data("database.text"); // Use ifstream to read from the file, and open the file directly with the constructor
     int arrcode[100000];
-    int arrqunatity[100000];
+    int arrquantity[100000]; // Fix typo in variable name
     char choice;
-    int c=0;
-    float amount =0;
-    float dis =0;
-    float total=0;
+    int c = 0;
+    float amount = 0;
+    float dis = 0;
+    float total = 0;
 
     cout<<"\n\n\t\t\t\t BIGBAZZAR RECEIPT ";
-    data.open("database.text",ios::in);
-    if(!data)
-    {
+
+    if(!data) {
         cout<<"\n\n EMPTY DATABASE! ";
+        return; // Return if the database file can't be opened
     }
-    else{
-        data.close();
 
-        lis();
-        cout<<"\n\n\t__________________________________________________________\n";
-        cout<<"\n|                                                             \n";
-        cout<<"\n\n\t                  PLEASE PLACE THE ORDER                  \n";
-        cout<<"\n|                                                             \n";
-        cout<<"\n\n\t__________________________________________________________\n";
-        do
-        {
-            x:
-            cout<<"\n\n ENTER PRODUCT CODE :";
-            cin>>arrcode[c];
-            cout<<"\n\n ENTER THE PRODUCT QUNATITY :";
-            cin>>arrqunatity[c];
-            for(int i=0;i<c;i++)
-            {
-                if(arrcode[c]==arrcode[i])
-                {
-                    cout<<"\n\n DUPLICATE PRODUCT CODE,PLEASE TRY AGAIN!";
-                    goto x;
-                }
-            }
-            c++;
-            cout<<"\n\n DO YOU WANT TOT BUY ANOTHER PRODUCT ? IF YES THEN PRESS Y ELSE N";
-            cin>>choice;
-        }
-        while(choice == 'Y');
+    lis();
 
+    cout<<"\n\n\t__________________________________________________________\n";
+    cout<<"\n|                                                             \n";
+    cout<<"\n\n\t                  PLEASE PLACE THE ORDER                  \n";
+    cout<<"\n|                                                             \n";
+    cout<<"\n\n\t__________________________________________________________\n";
 
-        cout<<"\n\n\t\t\t____________________BIGBAZZAR RECEIPT_______________________\n";
-        cout<<"\nPRODUCT NO \t PRODUCT NAME\t PRODUCT QUNATITY\t PRICE \t AMOUNT \t AMOUNT WITH DISCOUNT\n";
-
-
-        for(int i=0;i<c;i++)
-        {
-            data.open("database.text",ios::in);
-            data>>pcode>>pname>>price>>dis;
-            while(!data.eof())
-            {
-                if(pcode==arrcode[i])
-                {
-                    amount = price*arrqunatity[i];
-                    dis=amount-(amount*dis/100);
-                    total = total+dis;
-                    cout<<"\n"<<pcode<<"\t\t"<<pname<<"\t\t"<<arrqunatity[i]<<"\t\t"<<price<<"\t\t"<<amount<<"\t\t"<<dis;
-
-                }
-                data>>pcode>>pname>>price>>dis;
+    do {
+        x:
+        cout<<"\n\n ENTER PRODUCT CODE :";
+        cin>>arrcode[c];
+        cout<<"\n\n ENTER THE PRODUCT QUANTITY :"; // Fix typo in prompt message
+        cin>>arrquantity[c];
+        for(int i=0;i<c;i++) {
+            if(arrcode[c]==arrcode[i]) {
+                cout<<"\n\n DUPLICATE PRODUCT CODE, PLEASE TRY AGAIN!";
+                goto x;
             }
         }
-        data.close();
+        c++;
+        cout<<"\n\n DO YOU WANT TO BUY ANOTHER PRODUCT ? IF YES THEN PRESS Y ELSE N"; // Fix typo in prompt message
+        cin>>choice;
+    } while(choice == 'Y' || choice == 'y'); // Allow lowercase 'y' as well
+
+    cout<<"\n\n\t\t\t____________________BIGBAZZAR RECEIPT_______________________\n";
+    cout<<"\nPRODUCT NO \t PRODUCT NAME\t PRODUCT QUANTITY\t PRICE \t AMOUNT \t AMOUNT WITH DISCOUNT\n";
+
+    for(int i=0;i<c;i++) {
+        data.clear(); // Reset the error flag
+        data.seekg(0, ios::beg); // Reset the file pointer to the beginning of the file
+        bool found = false;
+        while(data>>pcode>>pname>>price>>dis) {
+            if(pcode == arrcode[i]) {
+                amount = price * arrquantity[i];
+                dis = amount - (amount * dis / 100);
+                total += dis;
+                cout<<"\n"<<pcode<<"\t\t"<<pname<<"\t\t"<<arrquantity[i]<<"\t\t"<<price<<"\t\t"<<amount<<"\t\t"<<dis;
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            cout<<"\n\n NO PRODUCT FOUND WITH CODE "<<arrcode[i];
+        }
     }
     cout<<"\n\n__________________________________________________________________________\n";
-    cout<<"\n TOTAL AMOUNT :"<<total;
+    cout<<"\n TOTAL AMOUNT :"<<total<<"\n";
 }
 
 
@@ -398,3 +390,4 @@ int main()
     shopping s;
     s.menu();
 }
+
